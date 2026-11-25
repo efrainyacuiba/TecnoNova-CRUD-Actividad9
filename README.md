@@ -1,4 +1,4 @@
-# TecnoNova · Actividad 10
+# TecnoNova · Actividad 9
 
 Proyecto continuado a partir del ZIP de la Actividad 9. Conserva catálogo, CRUD de productos, ventas maestro-detalle, historial, descuentos CR-01 y auditoría. Se añade Reportes de ventas, vista imprimible y verificación SQL independiente. No usa Docker.
 
