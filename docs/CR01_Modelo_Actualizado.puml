@@ -1,0 +1,52 @@
+@startuml
+skinparam backgroundColor #101827
+skinparam classBackgroundColor #1f2a41
+skinparam classBorderColor #d0deff
+skinparam classFontColor #ffffff
+skinparam ArrowColor #b9f35a
+hide circle
+class Producto {
+ + Id: int
+ + Codigo: string
+ + Nombre: string
+ + Precio: decimal
+ + Stock: int
+ + Validar(): void
+}
+class DetalleVenta {
+ + IdProducto: int
+ + NombreProducto: string
+ + Cantidad: int
+ + PrecioUnitario: decimal
+ + Subtotal: decimal
+}
+class Venta {
+ + Id: int
+ + Fecha: DateTime
+ + Cliente: string
+ + Total: decimal
+ <color:#b9f35a>+ Vendedor: string</color>
+ <color:#b9f35a>- PorcentajeDescuento: decimal</color>
+ <color:#b9f35a>+ SubtotalBruto: decimal</color>
+ <color:#b9f35a>+ MontoDescuento: decimal</color>
+ <color:#b9f35a>+ TotalFinal: decimal</color>
+ <color:#b9f35a>+ AplicarDescuento(decimal): void</color>
+}
+class VentaDAO {
+ + RegistrarVenta(Venta): int
+}
+class ProductoDAO {
+ + Guardar(Producto): int
+ + Editar(Producto): void
+ + Eliminar(int): void
+}
+class ReporteDAO {
+ <color:#b9f35a>+ Auditoria(): List</color>
+}
+Venta "1" *-- "1..*" DetalleVenta
+DetalleVenta "*" --> "1" Producto
+VentaDAO ..> Venta : persiste en transacción
+VentaDAO ..> Producto : bloqueo/stock
+ProductoDAO ..> Producto
+ReporteDAO ..> Venta
+@enduml

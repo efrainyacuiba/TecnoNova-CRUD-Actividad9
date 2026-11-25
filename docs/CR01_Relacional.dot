@@ -1,0 +1,9 @@
+digraph Datos {
+  graph [bgcolor="white",fontname="DejaVu Sans",rankdir=LR,pad=0.2,nodesep=0.65,ranksep=1];
+  node [shape=box, style="rounded,filled",fillcolor="#f1f5fd",color="#58759d",fontname="DejaVu Sans",fontsize=11,margin="0.28,0.2"];
+  productos [label="PRODUCTOS\nid PK\ncodigo UNIQUE\nnombre / precio / stock >= 0"];
+  ventas [label="VENTAS CR-01\nid PK / fecha / cliente / total [A7]\n+ vendedor\n+ subtotal_bruto\n+ porcentaje_descuento [0..20]\n+ monto_descuento\n+ total_final",fillcolor="#edfae2"];
+  detalle [label="DETALLE_VENTAS\nid PK / id_venta FK / id_producto FK\nnombre_producto / cantidad\nprecio_unitario / subtotal"];
+  ventas -> detalle [label="1 : N",color="#5c9c36",penwidth=2];
+  productos -> detalle [label="1 : N",color="#4e75a3",penwidth=2];
+}

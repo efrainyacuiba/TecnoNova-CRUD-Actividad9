@@ -1,0 +1,66 @@
+@model ReporteVentas
+@{ ViewData["Title"] = "Reporte de ventas"; var paginas = Model.Paginas(); }
+<link rel="stylesheet" href="~/css/reporte.css" asp-append-version="true" />
+<div class="report-controls">
+  <div class="page-head"><div><span class="eyebrow neon">SALIDAS DEL SISTEMA</span><h1>Reporte de ventas</h1><p>Consulta el detalle diario o el consolidado por mes. Importes en bolivianos.</p></div></div>
+  <form method="get" asp-action="Ventas" class="panel report-filter">
+    <label>Desde<input type="date" name="inicio" value="@Model.Inicio.ToString("yyyy-MM-dd")" required /></label>
+    <label>Hasta<input type="date" name="fin" value="@Model.Fin.ToString("yyyy-MM-dd")" required /></label>
+    <label>Granularidad<select name="tipo"><option value="Diario" selected="@(!Model.Mensual)">Diario</option><option value="Mensual" selected="@Model.Mensual">Mensual</option></select></label>
+    <label>Generado por<input name="generadoPor" value="@Model.GeneradoPor" maxlength="100" required /></label>
+    <button type="submit" class="btn primary">Generar reporte</button>
+  </form>
+  <div class="report-tools">
+    <a class="btn secondary" asp-action="Ventas" asp-route-inicio="2026-11-24" asp-route-fin="2026-11-24" asp-route-tipo="Diario" asp-route-generadoPor="@Model.GeneradoPor">Prueba A · Diario</a>
+    <a class="btn secondary" asp-action="Ventas" asp-route-inicio="2026-10-01" asp-route-fin="2026-11-30" asp-route-tipo="Mensual" asp-route-generadoPor="@Model.GeneradoPor">Prueba B · Mensual</a>
+    <a class="btn secondary" asp-action="Ventas" asp-route-inicio="2020-01-01" asp-route-fin="2020-12-31" asp-route-tipo="Diario" asp-route-generadoPor="@Model.GeneradoPor">Prueba C · Sin datos</a>
+    <a class="btn secondary" href="~/actividad10/informe.html" target="_blank" rel="noopener">Informe técnico</a>
+  </div>
+  @if (Model.Consultado && Model.Filas.Count > 0)
+  {
+    <div class="report-tools"><button class="btn primary" type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
+      <a class="btn secondary" asp-action="ValidarSql" asp-route-inicio="@Model.Inicio.ToString("yyyy-MM-dd")" asp-route-fin="@Model.Fin.ToString("yyyy-MM-dd")" target="_blank" rel="noopener">Validar total con SQL</a></div>
+  }
+</div>
+@if (Model.Error != null)
+{ <div class="notice error" role="alert">@Model.Error</div> }
+else if (Model.Consultado && Model.Filas.Count == 0)
+{
+    <section class="panel report-empty" role="status"><h2>No hay ventas en este periodo</h2><p>No existen ventas registradas en el rango de fechas seleccionado. Intente ampliar el periodo de búsqueda.</p><p>Periodo consultado: @Model.Inicio.ToString("dd/MM/yyyy") - @Model.Fin.ToString("dd/MM/yyyy")</p></section>
+}
+else if (Model.Consultado)
+{
+    <div class="report-preview">
+    @for (var i = 0; i < paginas.Count; i++)
+    {
+        <article class="report-paper">
+            <header class="report-header"><div class="report-brand"><span class="report-mark">TN</span><div><b>TecnoNova</b><small>Gestión de tienda</small></div></div><div class="report-heading"><h2>Reporte de ventas · @Model.Tipo</h2><span>@Model.Inicio.ToString("dd/MM/yyyy") — @Model.Fin.ToString("dd/MM/yyyy")</span></div></header>
+            <div class="report-meta"><span>Emitido: @Model.Emision.ToString("dd/MM/yyyy HH:mm")</span><span>Generado por: @Model.GeneradoPor</span><span>Moneda: Bs</span></div>
+            @foreach (var grupo in paginas[i])
+            {
+                <section class="report-group">
+                <h3>@(Model.Mensual ? "Mes" : "Día") @grupo.Periodo @(grupo.Continuacion ? "(continuación)" : "")</h3>
+                <div class="report-table-wrap"><table class="report-table"><thead><tr>
+                @if (Model.Mensual) { <th>Fecha</th><th class="num">Operaciones</th> }
+                else { <th>Nro.</th><th>Hora</th><th>Cliente</th><th>Vendedor</th> }
+                <th class="num">Subtotal</th><th class="num">Descuento</th><th class="num">Total cobrado</th>
+                </tr></thead><tbody>
+                @foreach (var fila in grupo.Filas)
+                {
+                    <tr>
+                    @if (Model.Mensual) { <td>@fila.Fecha.ToString("dd/MM/yyyy")</td><td class="num">@fila.Cantidad</td> }
+                    else { <td>@fila.Id</td><td>@fila.Fecha.ToString("HH:mm")</td><td>@fila.Cliente</td><td>@fila.Vendedor</td> }
+                    <td class="num">@fila.Bruto.ToString("N2")</td><td class="num">@fila.Descuento.ToString("N2")</td><td class="num">@fila.Total.ToString("N2")</td></tr>
+                }
+                </tbody></table></div>
+                @if (grupo.UltimoTramo)
+                { <div class="report-subtotal"><b>Subtotal @(Model.Mensual ? "del mes" : "del día")</b><span>Operaciones: <strong>@grupo.Totales.Cantidad</strong></span><span>Bruto: Bs @grupo.Totales.Bruto.ToString("N2")</span><span>Descuentos: Bs @grupo.Totales.Descuento.ToString("N2")</span><span>Total: <strong>Bs @grupo.Totales.Total.ToString("N2")</strong></span></div> }
+                </section>
+            }
+            @if (i == paginas.Count - 1)
+            { <div class="report-grand"><div><small>GRAN TOTAL DEL PERIODO</small><b>Bs @Model.Total.Total.ToString("N2")</b></div><div>Operaciones: <strong>@Model.Total.Cantidad</strong><br />Subtotal bruto: Bs @Model.Total.Bruto.ToString("N2")<br />Total descuentos: Bs @Model.Total.Descuento.ToString("N2")</div></div> }
+            <footer class="report-page-number">TecnoNova · Reporte de ventas <span>Página @(i + 1) de @paginas.Count</span></footer>
+        </article>
+    }
+    </div>
+}

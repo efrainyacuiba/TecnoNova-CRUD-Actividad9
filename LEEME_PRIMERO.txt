@@ -1,0 +1,18 @@
+TECNONOVA | ACTIVIDAD 10 - REPORTES DE VENTAS
+============================================
+1. Descomprime el ZIP. Abre en VS Code la carpeta TecnoNova_Actividad10 (la que contiene TiendaProyecto.csproj).
+2. Abre Terminal > Nueva terminal. Ejecuta: dotnet run
+3. Espera el mensaje Now listening on: http://localhost:5080 y abre esa dirección en el navegador.
+4. En el menú entra a Reportes. Hay tres botones de prueba A, B y C.
+5. Pulsa A y captura la vista. Pulsa Validar total con SQL y captura la consulta y resultado.
+   Alternativa para demostrar SQL en terminal: abre otra terminal en la misma carpeta y ejecuta:
+   dotnet run --no-build -- --verificar-sql 2026-11-24 2026-11-24
+6. Pulsa B, captura octubre y noviembre; pulsa C, captura el aviso de rango vacío.
+7. Sube el código a GitHub (excluye bin, obj, pg_embed, logs); copia el enlace al commit.
+8. Pulsa Informe técnico. Escribe integrantes, enlace y carga las 4 capturas. Guarda como PDF.
+
+REQUISITOS: SDK .NET 10 (igual que Actividad 9), internet la primera vez (NuGet y binarios de PostgreSQL),
+usuario normal sin ejecutar como administrador/root. No se requiere Docker ni instalar PostgreSQL manualmente.
+El servidor real de PostgreSQL se inicia en un puerto local libre mediante MysticMind.PostgresEmbed.
+Los datos locales quedan en pg_embed; no se suben a GitHub. No es un servidor para producción.
+Consulta README.md si necesitas usar tu base PostgreSQL anterior, resolver errores o versionar.

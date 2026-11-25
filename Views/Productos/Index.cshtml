@@ -1,0 +1,25 @@
+@model List<Producto>
+@{ ViewData["Title"] = "Productos e inventario"; }
+<div class="page-head"><div><span class="eyebrow neon">CATÁLOGO / A5 + A9</span><h1>Productos e inventario</h1><p>Registra productos, controla el stock y comprueba la validación de códigos repetidos.</p></div><span class="pill">@Model.Count productos</span></div>
+<div class="grid-two">
+ <section class="panel"><div class="panel-head"><div><h2>Registro de producto</h2><p>Los campos marcados con * son obligatorios.</p></div></div>
+  <form asp-action="Crear" method="post">
+   @Html.AntiForgeryToken()
+   <label>Código *<input name="Codigo" required maxlength="30" placeholder="TEC-007" autocomplete="off" /></label>
+   <label>Nombre *<input name="Nombre" required maxlength="100" placeholder="Ej. Hub USB-C" /></label>
+   <div class="form-row"><label>Precio (Bs) *<input type="number" name="Precio" min="0.01" max="99999999" step="0.01" required value="95.00" /></label><label>Stock *<input type="number" name="Stock" min="0" step="1" required value="1" /></label></div>
+   <div class="form-actions"><button class="btn primary" type="submit">Guardar producto</button><button class="btn secondary" type="reset">Limpiar</button></div>
+   <p class="tiny">Para A9: intenta registrar otra vez el código <strong>TEC-001</strong> y toma captura del aviso.</p>
+  </form>
+ </section>
+ <section class="panel"><div class="panel-head"><div><h2>Listado de productos</h2><p>Precios en bolivianos. Se conservan los productos asociados a ventas.</p></div></div>
+ <div class="table-wrap"><table><thead><tr><th>Código</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr></thead><tbody>
+ @foreach (var p in Model) {
+  <tr><td class="code">@p.Codigo</td><td>@p.Nombre</td><td>Bs @p.Precio.ToString("N2")</td><td><span class="stock">@p.Stock</span></td><td class="table-actions">
+    <a class="mini" asp-action="Editar" asp-route-id="@p.Id">Editar</a>
+    <form asp-action="Eliminar" method="post" onsubmit="return confirm('¿Eliminar producto? Si ya tiene ventas, el historial se conservará y la acción será bloqueada.');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.Id"/><button class="mini danger" type="submit">Eliminar</button></form>
+  </td></tr>
+ }
+ </tbody></table></div>
+ </section>
+</div>

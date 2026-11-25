@@ -1,0 +1,13 @@
+digraph Clases {
+graph [bgcolor="white",rankdir=LR,nodesep=0.5,ranksep=1.0,pad=0.25];
+node [shape=plain,fontname="DejaVu Sans"];
+Venta [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#54769e"><TR><TD BGCOLOR="#1a2b45"><FONT COLOR="white"><B>Venta</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Id: int · Fecha: DateTime<BR/>Cliente: string · Total: decimal</TD></TR><TR><TD BGCOLOR="#ddf6c3" ALIGN="LEFT">+ Vendedor: string<BR/>+ PorcentajeDescuento: decimal<BR/>+ SubtotalBruto: decimal<BR/>+ MontoDescuento: decimal<BR/>+ TotalFinal: decimal<BR/>+ AplicarDescuento(decimal): void</TD></TR></TABLE>>];
+Detalle [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#54769e"><TR><TD BGCOLOR="#1a2b45"><FONT COLOR="white"><B>DetalleVenta</B></FONT></TD></TR><TR><TD ALIGN="LEFT">IdProducto: int<BR/>NombreProducto: string<BR/>Cantidad: int<BR/>PrecioUnitario: decimal<BR/>Subtotal: decimal</TD></TR></TABLE>>];
+Producto [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#54769e"><TR><TD BGCOLOR="#1a2b45"><FONT COLOR="white"><B>Producto</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Id: int · Codigo: string<BR/>Nombre: string · Precio: decimal<BR/>Stock: int</TD></TR></TABLE>>];
+VentaDAO [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#54769e"><TR><TD BGCOLOR="#1a2b45"><FONT COLOR="white"><B>VentaDAO</B></FONT></TD></TR><TR><TD>RegistrarVenta(Venta): int</TD></TR></TABLE>>];
+Reportes [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#54769e"><TR><TD BGCOLOR="#1a2b45"><FONT COLOR="white"><B>ReporteDAO</B></FONT></TD></TR><TR><TD BGCOLOR="#ddf6c3">+ Auditoria(): List</TD></TR></TABLE>>];
+Venta -> Detalle [label="1 a muchos",color="#79a33b"];
+Detalle -> Producto [label="cada línea usa 1",color="#79a33b"];
+VentaDAO -> Venta [style=dashed,arrowhead=open];
+Reportes -> Venta [style=dashed,arrowhead=open];
+}

@@ -1,0 +1,13 @@
+@model List<AuditoriaDescuento>
+@{ ViewData["Title"] = "Auditoría de descuentos"; }
+<div class="page-head"><div><span class="eyebrow neon">GERENCIA / CR-01</span><h1>Auditoría de descuentos</h1><p>¿Qué vendedores concedieron descuentos y cuánto se descontó?</p></div><span class="pill">Solo ventas con descuento &gt; 0 %</span></div>
+<div class="three-cards two">
+ <div class="tile"><span class="eyebrow">VENDEDORES CON DESCUENTOS</span><h2 class="metric">@Model.Count</h2><p>Identidades registradas</p></div>
+ <div class="tile"><span class="eyebrow">VENTAS DESCONTADAS</span><h2 class="metric">@Model.Sum(x => x.VentasConDescuento)</h2><p>Operaciones identificadas</p></div>
+ <div class="tile"><span class="eyebrow">TOTAL DESCONTADO</span><h2 class="metric">Bs @Model.Sum(x => x.SumaDescuentos).ToString("N2")</h2><p>Importe total concedido</p></div>
+</div>
+<section class="panel"><div class="panel-head"><div><h2>Detalle por vendedor</h2><p>Consulta SQL de la Actividad 8 · agrupación por vendedor</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Vendedor</th><th>Ventas con descuento</th><th>Total descontado</th></tr></thead><tbody>
+@foreach (var item in Model) { <tr><td>@item.Vendedor</td><td>@item.VentasConDescuento</td><td><strong>Bs @item.SumaDescuentos.ToString("N2")</strong></td></tr> }
+@if (Model.Count == 0) { <tr><td colspan="3" class="empty">No hay descuentos registrados todavía. Guarde una venta con porcentaje mayor a 0 %.</td></tr> }
+</tbody></table></div></section>

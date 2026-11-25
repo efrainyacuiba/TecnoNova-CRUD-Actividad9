@@ -1,0 +1,5 @@
+@model ReporteTotales
+@{ ViewData["Title"] = "Validación SQL"; DateOnly inicio = ViewBag.Inicio; DateOnly fin = ViewBag.Fin; }
+<div class="page-head"><div><span class="eyebrow neon">POSTGRESQL · CONSULTA INDEPENDIENTE</span><h1>Validación del total de ventas</h1><p>Resultado real de una consulta SUM ejecutada sobre la tabla ventas. No utiliza los subtotales de la vista.</p></div></div>
+<section class="panel"><h2>Consulta ejecutada</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">@ViewBag.Sql</pre><p>Parámetros: inicio = @inicio.ToString("yyyy-MM-dd") · fin = @fin.ToString("yyyy-MM-dd")</p><div class="table-wrap"><table><thead><tr><th>Operaciones</th><th>Subtotal bruto</th><th>Descuentos</th><th>Total SQL</th></tr></thead><tbody><tr><td>@Model.Cantidad</td><td>Bs @Model.Bruto.ToString("N2")</td><td>Bs @Model.Descuento.ToString("N2")</td><td><strong>Bs @Model.Total.ToString("N2")</strong></td></tr></tbody></table></div></section>
+<a class="btn secondary" asp-action="Ventas" asp-route-inicio="@inicio.ToString("yyyy-MM-dd")" asp-route-fin="@fin.ToString("yyyy-MM-dd")">Volver al reporte</a>

@@ -1,0 +1,36 @@
+@{
+    var seccion = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - TecnoNova</title>
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <a class="brand" asp-controller="Home" asp-action="Index">TecnoNova <span>Gestión de tienda</span></a>
+            <nav class="main-nav" aria-label="Menú principal">
+                <a class="@(seccion == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Inicio</a>
+                <a class="@(seccion == "Productos" ? "active" : "")" asp-controller="Productos" asp-action="Index">Productos</a>
+                <a class="@(seccion == "Ventas" && ViewContext.RouteData.Values["action"]?.ToString() == "Nueva" ? "active" : "")" asp-controller="Ventas" asp-action="Nueva">Nueva venta</a>
+                <a class="@(seccion == "Ventas" && ViewContext.RouteData.Values["action"]?.ToString() == "Historial" ? "active" : "")" asp-controller="Ventas" asp-action="Historial">Historial</a>
+                <a class="@(seccion == "Reportes" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Reportes" asp-action="Index">Auditoría</a>
+            <a class="@(seccion == "Reportes" && ViewContext.RouteData.Values["action"]?.ToString() == "Ventas" ? "active" : "")" asp-controller="Reportes" asp-action="Ventas">Reportes</a>
+            </nav>
+        </div>
+    </header>
+    <main class="page" id="contenido">
+        @if (TempData["Exito"] != null) { <div class="notice success" role="status">@TempData["Exito"]</div> }
+        @if (TempData["Error"] != null) { <div class="notice error" role="alert">@TempData["Error"]</div> }
+        @if (ViewBag.Error != null) { <div class="notice error" role="alert">@ViewBag.Error</div> }
+        @RenderBody()
+    </main>
+    <footer class="site-footer">TecnoNova · Actividad 10 · Desarrollo de Sistemas I</footer>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

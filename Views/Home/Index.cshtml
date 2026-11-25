@@ -1,0 +1,16 @@
+@{ ViewData["Title"] = "Inicio"; }
+<div class="page-head"><div><h1>Panel principal</h1><p>Sistema sencillo para controlar productos, registrar ventas y revisar descuentos.</p></div></div>
+<div class="intro panel">
+  <h2>Bienvenido a TecnoNova</h2>
+  <p>Registra tus productos, agrega varios artículos a una venta, aplica descuentos de hasta el 20 % y consulta qué vendedor los realizó.</p>
+  <div class="actions">
+    <a class="btn primary" asp-controller="Ventas" asp-action="Nueva">Registrar venta</a>
+    <a class="btn secondary" asp-controller="Productos" asp-action="Index">Ver productos</a>
+  </div>
+</div>
+<div class="three-cards">
+  <a class="tile" asp-controller="Productos" asp-action="Index"><h3>1. Productos</h3><p>Registrar, editar, eliminar y consultar existencias.</p><strong>Ir a productos</strong></a>
+  <a class="tile" asp-controller="Ventas" asp-action="Nueva"><h3>2. Ventas</h3><p>Crear ventas con detalle, vendedor y descuento.</p><strong>Crear una venta</strong></a>
+  <a class="tile" asp-controller="Reportes" asp-action="Index"><h3>3. Auditoría</h3><p>Ver quién aplicó descuentos y cuánto se descontó.</p><strong>Ver auditoría</strong></a>
+</div>
+<section class="panel compact-panel"><h2>Reportes de ventas</h2><p>Consulta ventas por día o por mes, compara los totales con PostgreSQL e imprime el reporte.</p><a class="btn primary" asp-controller="Reportes" asp-action="Ventas">Abrir reportes</a></section>

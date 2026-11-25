@@ -1,0 +1,34 @@
+@model List<Producto>
+@{ ViewData["Title"] = "Registrar venta"; }
+<div class="page-head"><div><span class="eyebrow">VENTAS / ACTIVIDADES 7 Y 8</span><h1>Registrar nueva venta</h1><p>Agrega artículos, elige un vendedor y aplica un descuento entre 0 % y 20 %.</p></div><span class="pill">Descuento máximo 20 %</span></div>
+<form id="form-venta" class="sales-grid" method="post" autocomplete="off">
+ @Html.AntiForgeryToken()
+ <div>
+  <section class="panel"><div class="panel-head"><div><h2>01 · Datos de la venta</h2><p>La fecha se asigna automáticamente al confirmar.</p></div></div>
+   <div class="form-row"><label>Cliente<input id="cliente" value="Consumidor Final" maxlength="150" /></label><label>Vendedor *<input id="vendedor" value="Carlos Pérez" maxlength="120" required placeholder="Nombre del vendedor" /></label></div>
+  </section>
+  <section class="panel"><div class="panel-head"><div><h2>02 · Agregar artículos</h2><p>El carrito se calcula en memoria antes de enviarse a PostgreSQL.</p></div></div>
+   <div class="pick-row"><label>Producto<select id="producto" aria-label="Producto">
+     <option value="">Selecciona un producto...</option>
+     @foreach (var p in Model) { <option value="@p.Id" data-nombre="@p.Nombre" data-precio="@p.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-stock="@p.Stock">@p.Nombre · Bs @p.Precio.ToString("N2") (@p.Stock disponibles)</option> }
+   </select></label><label>Cantidad<input id="cantidad" type="number" value="1" min="1" max="10000" /></label><button type="button" id="agregar" class="btn primary">+ Añadir</button></div>
+   <div id="aviso-articulo" class="inline-error" role="alert" hidden></div>
+   <div class="table-wrap"><table><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="lineas"><tr><td colspan="5" class="empty">El carrito está vacío. Agrega al menos un artículo.</td></tr></tbody></table></div>
+  </section>
+ </div>
+ <div>
+  <section class="panel summary"><div class="panel-head"><div><h2>03 · Resumen y descuento</h2><p>Regla de negocio CR-01</p></div></div>
+  <div class="subtotal-line"><span>Subtotal bruto</span><strong id="subtotal">Bs 0.00</strong></div>
+  <label>Descuento (%)<input id="descuento" type="number" min="0" max="100" step="0.01" value="15" /></label>
+  <div class="limit-note">Se permite de 0 % a 20 %. La aplicación vuelve a validar antes de guardar.</div>
+  <div id="aviso-descuento" class="inline-error" role="alert" hidden></div>
+  <div class="subtotal-line"><span>Monto descontado</span><strong id="monto">− Bs 0.00</strong></div>
+  <div class="total-line"><span>TOTAL FINAL</span><strong id="total">Bs 0.00</strong></div>
+  <div id="mensaje-venta" class="notice" role="status" hidden></div>
+  <button type="submit" id="confirmar" class="btn primary block">Confirmar y guardar venta</button>
+  <button type="button" id="vaciar" class="btn secondary block">Vaciar carrito</button>
+  <p class="tiny">Para la Actividad 8: registra 3 artículos, vendedor y 15 %. Para la 9: intenta 25 % o deja el carrito vacío. Las pruebas se guardan en el informe.</p>
+  </section>
+ </div>
+</form>
+@section Scripts { <script src="~/js/ventas.js" asp-append-version="true"></script> }

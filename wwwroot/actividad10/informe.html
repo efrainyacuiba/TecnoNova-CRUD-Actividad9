@@ -1,0 +1,113 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Informe Actividad 10 - TecnoNova</title><style>
+*{box-sizing:border-box}body{margin:0;background:#e9eef2;color:#1c2e3b;font:15px/1.45 Arial,sans-serif}.toolbar{position:sticky;top:0;background:#123e51;color:#fff;padding:12px 18px;z-index:2;display:flex;gap:14px;align-items:center;flex-wrap:wrap}.toolbar button{background:white;border:0;border-radius:5px;padding:10px 14px;font-weight:bold;color:#123e51;cursor:pointer}.sheet{width:min(100%,210mm);min-height:270mm;background:white;margin:15px auto;padding:14mm 15mm;box-shadow:0 2px 15px #0002;break-after:page}.sheet:last-child{break-after:auto}.kicker{color:#17627c;font-size:11px;letter-spacing:1.5px;font-weight:bold;border-bottom:1px solid #c9d7dd;padding-bottom:8px}h1{font-size:31px;line-height:1.2}h2{font-size:22px;color:#123e51;margin:16px 0 12px}h3{font-size:15px;color:#123e51;margin:16px 0 8px}p{margin:8px 0}pre{background:#f4f7f9;border:1px solid #cbd7de;padding:8px;white-space:pre-wrap;overflow-wrap:anywhere;font:10px/1.35 Consolas,monospace;margin:8px 0}img.diagram{width:100%;height:auto;display:block;border:1px solid #dbe5ea}input[type=text],textarea{display:block;width:100%;font:inherit;padding:8px;border:1px solid #bdcbd4;border-radius:4px;resize:vertical}.cover{text-align:center;display:flex;flex-direction:column;justify-content:center}.cover .fields{text-align:left;margin-top:30px}.cover h1{margin:38px 0 18px}.cover label{display:block;margin:15px 0 5px;font-weight:bold}.slot{border:1px dashed #8fa6b5;padding:10px;margin:10px 0;break-inside:avoid}.slot img{display:none;width:100%;max-height:175mm;object-fit:contain;object-position:center;margin-top:8px}.slot img.loaded{display:block}.slot .placeholder{padding:30px 8px;color:#677c8a;text-align:center}.slot.has-image .placeholder{display:none}.status{color:#8c4b12;font-size:12px}.hint{color:#526777;font-size:13px}.cover .brand{font-size:18px;font-weight:bold;letter-spacing:.5px;color:#163c50}.sub{color:#526777} @media print{@page{size:A4 portrait;margin:13mm}body{background:white;color:#152631}.toolbar,.file,.screen-only{display:none!important}.sheet{width:auto;min-height:0;margin:0;padding:0;box-shadow:none;break-after:page}.sheet:last-child{break-after:auto}.cover{min-height:245mm}input[type=text],textarea{border:none;padding:0;resize:none;overflow:hidden;color:#182638;background:transparent}pre{font-size:9.5px}img.diagram{max-height:180mm;object-fit:contain}.slot{border:0;padding:0}.slot img{max-height:190mm}.slot .placeholder{border:1px dashed #aaa}.slot .status{display:none}}
+</style></head><body><div class="toolbar"><button onclick="imprimir()">Guardar informe como PDF</button><span>Completa los integrantes, el enlace del commit y carga las cuatro capturas reales. No cierres esta pestaña antes de imprimir.</span></div><section class="sheet cover"><div class="brand">UNIVERSIDAD PRIVADA DOMINGO SAVIO</div><p>Desarrollo de Sistemas I</p><h1>Actividad 10<br>Reporte de ventas<br>diario y mensual</h1><h2>TecnoNova</h2><p class="sub">Salidas del sistema · Sprint de reportes</p><div class="fields"><label>Integrantes</label><textarea id="integrantes" rows="5" placeholder="Escribe los nombres completos de todos los integrantes"></textarea><label>Docente (opcional)</label><input type="text" placeholder="Nombre del docente"><label>Enlace al último commit en GitHub</label><textarea id="commit" rows="3" placeholder="https://github.com/usuario/repositorio/commit/..."></textarea><label>Fecha</label><input type="text" value="24 de noviembre de 2026"></div></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>1. Bosquejo del reporte diario</h2><p>El reporte diario muestra las ventas individualmente, separadas por fecha. Utilizamos los campos que ya existían en la tabla <b>ventas</b> de TecnoNova, incluyendo los descuentos añadidos en la Actividad 8. El operador que genera el reporte se escribe en el formulario, porque el proyecto base no tiene una tabla de usuarios.</p><img class="diagram" src="bosquejo_diario.svg" alt="Bosquejo diario con las cinco bandas y mapeo a PostgreSQL"><p class="hint">Figura 1. Bandas del reporte diario y origen de cada dato.</p></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>1. Bosquejo del reporte mensual</h2><p>El reporte mensual resume las operaciones de cada día y las agrupa por mes y año. Los subtotales se calculan a partir de las ventas registradas, sin unir la tabla de detalle de productos para evitar contar una venta varias veces.</p><img class="diagram" src="bosquejo_mensual.svg" alt="Bosquejo mensual con las cinco bandas y mapeo a PostgreSQL"><p class="hint">Figura 2. Bandas del reporte mensual.</p></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>2. Consultas SQL implementadas</h2><p>La consulta diaria recupera una fila por venta. La mensual consolida por fecha dentro de cada mes. Los parámetros de fecha permiten incluir todo el último día y evitan concatenar datos del usuario dentro del SQL.</p><pre>public const string SqlDiario = @&quot;
+SELECT TO_CHAR(v.fecha, &#x27;YYYY-MM-DD&#x27;) AS periodo_grupo,
+       v.fecha, v.id, v.cliente, v.vendedor,
+       v.subtotal_bruto, v.monto_descuento, v.total_final
+FROM ventas v
+WHERE v.fecha &gt;= @inicio AND v.fecha &lt; @fin + 1
+ORDER BY v.fecha, v.id;&quot;;
+
+    public const string SqlMensual = @&quot;
+SELECT TO_CHAR(v.fecha, &#x27;YYYY-MM&#x27;) AS periodo_mes,
+       v.fecha::date AS fecha_dia, COUNT(v.id) AS cantidad_ventas,
+       SUM(v.subtotal_bruto) AS subtotal_bruto,
+       SUM(v.monto_descuento) AS total_descuentos,
+       SUM(v.total_final) AS total_cobrado
+FROM ventas v
+WHERE v.fecha &gt;= @inicio AND v.fecha &lt; @fin + 1
+GROUP BY TO_CHAR(v.fecha, &#x27;YYYY-MM&#x27;), v.fecha::date
+ORDER BY periodo_mes, fecha_dia;&quot;;
+
+    public const string SqlValidacion = @&quot;
+SELECT COUNT(id) AS operaciones,
+       COALESCE(SUM(subtotal_bruto), 0) AS bruto,
+       COALESCE(SUM(monto_descuento), 0) AS descuentos,
+       COALESCE(SUM(total_final), 0) AS total_sql
+FROM ventas
+WHERE fecha::date BETWEEN @inicio AND @fin;&quot;;</pre></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>2. Capa de datos: ReporteDAO</h2><p>El DAO abre la conexión Npgsql, selecciona la consulta según el modo y devuelve DTOs. La vista no ejecuta SQL. Los problemas de conexión se registran y se devuelve un mensaje orientador.</p><pre>private static void Fechas(NpgsqlCommand cmd, DateOnly inicio, DateOnly fin)
+    {
+        cmd.Parameters.AddWithValue(&quot;inicio&quot;, NpgsqlTypes.NpgsqlDbType.Date, inicio);
+        cmd.Parameters.AddWithValue(&quot;fin&quot;, NpgsqlTypes.NpgsqlDbType.Date, fin);
+    }
+
+    public List&lt;ReporteFila&gt; ObtenerReporteVentas(DateOnly inicio, DateOnly fin, string tipo)
+    {
+        try
+        {
+            using var conn = new NpgsqlConnection(_cadena);
+            conn.Open();
+            bool mensual = tipo == &quot;Mensual&quot;;
+            using var cmd = new NpgsqlCommand(mensual ? SqlMensual : SqlDiario, conn);
+            Fechas(cmd, inicio, fin);
+            using var r = cmd.ExecuteReader();
+            var filas = new List&lt;ReporteFila&gt;();
+            while (r.Read())
+            {
+                filas.Add(mensual
+                    ? new ReporteFila(r.GetString(0), r.GetFieldValue&lt;DateOnly&gt;(1).ToDateTime(TimeOnly.MinValue), null,
+                        &quot;&quot;, &quot;&quot;, r.GetInt64(2), r.GetDecimal(3), r.GetDecimal(4), r.GetDecimal(5))
+                    : new ReporteFila(r.GetString(0), r.GetDateTime(1), r.GetInt32(2),
+                        r.GetString(3), r.GetString(4), 1, r.GetDecimal(5), r.GetDecimal(6), r.GetDecimal(7)));
+            }
+            return filas;
+        }
+        catch (NpgsqlException ex)
+        {
+            ErrorLog.Registrar(ex);
+            throw new FriendlyException(&quot;No pudimos consultar las ventas. Verifique la conexión con PostgreSQL e inténtelo nuevamente.&quot;, ex);
+        }
+    }</pre></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>2. Validación cruzada y controlador</h2><p>La validación SQL consulta nuevamente la tabla ventas con un SUM independiente del reporte. El controlador comprueba los filtros y entrega los datos a la vista.</p><pre>public ReporteTotales VerificarTotal(DateOnly inicio, DateOnly fin)
+    {
+        try
+        {
+            using var conn = new NpgsqlConnection(_cadena);
+            conn.Open();
+            using var cmd = new NpgsqlCommand(SqlValidacion, conn);
+            Fechas(cmd, inicio, fin);
+            using var r = cmd.ExecuteReader();
+            r.Read();
+            return new ReporteTotales(r.GetInt64(0), r.GetDecimal(1), r.GetDecimal(2), r.GetDecimal(3));
+        }
+        catch (NpgsqlException ex)
+        {
+            ErrorLog.Registrar(ex);
+            throw new FriendlyException(&quot;No pudimos validar el total. Revise PostgreSQL.&quot;, ex);
+        }
+    }</pre><pre>[HttpGet]
+    public IActionResult Ventas(DateOnly? inicio, DateOnly? fin, string tipo = &quot;Diario&quot;, string? generadoPor = null)
+    {
+        var hoy = DateOnly.FromDateTime(DateTime.Today);
+        var vm = new ReporteVentas
+        {
+            Inicio = inicio ?? hoy, Fin = fin ?? hoy, Tipo = tipo,
+            GeneradoPor = string.IsNullOrWhiteSpace(generadoPor) ? &quot;Operador local&quot; : generadoPor.Trim()
+        };
+        if (!ModelState.IsValid || vm.Inicio &gt; vm.Fin || (tipo != &quot;Diario&quot; &amp;&amp; tipo != &quot;Mensual&quot;) || vm.GeneradoPor.Length &gt; 100)
+        {
+            vm.Error = &quot;Revise el rango de fechas, la granularidad y el nombre del operador (máximo 100 caracteres).&quot;;
+            return View(vm);
+        }
+        try
+        {
+            vm.Filas = _dao.ObtenerReporteVentas(vm.Inicio, vm.Fin, tipo);
+            vm.Consultado = true;
+        }
+        catch (FriendlyException ex) { vm.Error = ex.Message; }
+        catch (Exception ex) { ErrorLog.Registrar(ex); vm.Error = &quot;No se pudo generar el reporte. Inténtelo nuevamente.&quot;; }
+        return View(vm);
+    }</pre></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>2. Controlador de validación y presentación</h2><pre>[HttpGet]
+    public IActionResult ValidarSql(DateOnly? inicio, DateOnly? fin)
+    {
+        if (!ModelState.IsValid || inicio is null || fin is null || inicio &gt; fin)
+            return BadRequest(&quot;Indique un rango de fechas válido.&quot;);
+        try
+        {
+            var total = _dao.VerificarTotal(inicio.Value, fin.Value);
+            ViewBag.Inicio = inicio.Value;
+            ViewBag.Fin = fin.Value;
+            ViewBag.Sql = ReporteDAO.SqlValidacion;
+            return View(total);
+        }
+        catch (FriendlyException ex) { return StatusCode(503, ex.Message); }
+    }</pre><p>La vista <b>Views/Reportes/Ventas.cshtml</b> presenta las bandas y los subtotales mediante agrupaciones en C#. La clase <b>ReporteVentas</b> calcula el total general con decimales y divide el documento en páginas. El botón Imprimir / Guardar PDF utiliza la vista imprimible MVC y estilos de impresión.</p><p>Archivos de respaldo: Data/ReporteDAO.cs, Controllers/ReportesController.cs, Models/ReporteVentas.cs, sql/04_validacion_actividad10.sql.</p></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>3. Prueba A: reporte diario</h2><p>Rango: 24/11/2026 al 24/11/2026. En una base recién preparada se esperan tres ventas y Bs 1.130,00 cobrados. Verificar que la cifra observada coincida con la consulta SQL de la siguiente página.</p><div class="slot" id="slot-a1"><h3>Captura A1 — Vista del reporte diario</h3><input class="file" type="file" accept="image/*" onchange="cargar(this,'a1')"><div class="placeholder">Pendiente: insertar captura real de la prueba.</div><img id="img-a1" alt="Captura A1 — Vista del reporte diario"></div></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>3. Prueba A: comprobación con SQL</h2><p>La consulta independiente debe mostrar el mismo rango, número de operaciones y total. Si se registraron otras ventas durante el periodo, comparar los valores reales en ambas capturas en lugar de los importes de ejemplo.</p><div class="slot" id="slot-a2"><h3>Captura A2 — Resultado real de PostgreSQL (terminal o vista SQL)</h3><input class="file" type="file" accept="image/*" onchange="cargar(this,'a2')"><div class="placeholder">Pendiente: insertar captura real de la prueba.</div><img id="img-a2" alt="Captura A2 — Resultado real de PostgreSQL (terminal o vista SQL)"></div></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>3. Prueba B: reporte mensual</h2><p>Rango: 01/10/2026 al 30/11/2026. Con los datos de ejemplo se esperan dos grupos: octubre (Bs 290,00) y noviembre (Bs 1.130,00), con un total de Bs 1.420,00.</p><div class="slot" id="slot-b"><h3>Captura B — Octubre y noviembre con subtotales y gran total</h3><input class="file" type="file" accept="image/*" onchange="cargar(this,'b')"><div class="placeholder">Pendiente: insertar captura real de la prueba.</div><img id="img-b" alt="Captura B — Octubre y noviembre con subtotales y gran total"></div></section><section class="sheet"><div class="kicker">TECNONOVA / ACTIVIDAD 10</div><h2>3. Prueba C: rango sin datos</h2><p>Rango: 01/01/2020 al 31/12/2020. El resultado esperado es un mensaje que indica que no hay ventas y sugiere ampliar el periodo, sin mostrar una tabla o PDF vacío.</p><div class="slot" id="slot-c"><h3>Captura C — Mensaje orientador del sistema</h3><input class="file" type="file" accept="image/*" onchange="cargar(this,'c')"><div class="placeholder">Pendiente: insertar captura real de la prueba.</div><img id="img-c" alt="Captura C — Mensaje orientador del sistema"></div><h3>Conclusión</h3><p>El módulo permite consultar las ventas de forma operativa o por periodos mensuales y revisar los importes de descuentos y cobros. Los resultados deben comprobarse con las evidencias reales adjuntas antes de entregar.</p></section><script>function cargar(input,key){const f=input.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{const img=document.getElementById('img-'+key);img.src=reader.result;img.classList.add('loaded');document.getElementById('slot-'+key).classList.add('has-image')};reader.readAsDataURL(f)}function imprimir(){if(!document.getElementById('integrantes').value.trim()||!document.getElementById('commit').value.trim()||document.querySelectorAll('.slot.has-image').length!==4){alert('Completa los integrantes, el enlace del commit y las cuatro capturas antes de guardar el PDF.');return}window.print()}</script></body></html>
